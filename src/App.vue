@@ -15,14 +15,10 @@ const opcoes = [
   {link: "/despesas", nome : "Despesas"},
   {link: "/receitas", nome : "Receitas"}
 ]
-function navegar(url){
-  console.log("Navegando para "+url)
-  router.push({path : url})
-}
 </script>
 
 <style>
-  @import "https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/minty/bootstrap.min.css";
+  @import "https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/journal/bootstrap.min.css";
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.5s ease;
@@ -51,7 +47,7 @@ function navegar(url){
     <Logo/>
     <div class="container">
         <div class="navbar">
-          <h1>{{this.user.titulo}}</h1>
+          <h1>{{user.titulo}}</h1>
           <span v-if="user.nome">Olá, {{user.nome}}! <a href="#" @click="user.logout()">(fazer logout)</a></span>
         </div>
         <div class="navbar">
@@ -65,7 +61,7 @@ function navegar(url){
           <div class="container">
             <ul class="nav">
               <li class="nav-item" v-for="opcao in opcoes">
-                <a class="nav-link" href="#" @click="navegar(opcao.link)">{{opcao.nome}} </a>
+                <RouterLink class="nav-link" :to="opcao.link">{{opcao.nome}}</RouterLink>
               </li>
             </ul>
           </div>

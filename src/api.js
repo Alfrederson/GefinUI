@@ -1,5 +1,5 @@
-const API = "http://127.0.0.1:5000"
-
+//const API = "http://127.0.0.1:5000"
+const API = "https://challenge-backend-9254d.web.app"
 
 const status = {
     logged : false,
@@ -25,7 +25,6 @@ const fetcher = (path, options) =>
 export default {
     refresher(){
         // se já tiver outro timeout, mata ele.
-        console.log("Refresher invocado.")
         clearTimeout(status.refresher)
         status.refresher = 
         setTimeout( () =>{
@@ -36,13 +35,14 @@ export default {
                 })
                 this.refresher()    
             }
-        },6000) // sessão expira em 600 segundos, então a gente renova de 550 em 550.
+        },60000) // renova a sessão de minuto em minuto (ela expira em 600 segundos)
     },    
     // isso é chamado quando a pessoa entra na página por um link exteron.
     refresh(){
         return this.post("/user/refresh").then( x => {
             if(!status.logged){
-                this.refresher()
+                console.log("É pra ativar o refresher.")
+                // this.refresher()
             }
             status.logged = true
             return x

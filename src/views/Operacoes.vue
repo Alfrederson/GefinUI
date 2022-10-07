@@ -78,7 +78,6 @@
             }            
         },
         async mounted(){
-            console.log(this.pagina)
             await this.user.prepare()
             this.puxarDados()
         }        

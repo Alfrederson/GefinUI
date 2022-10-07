@@ -16,9 +16,7 @@
         methods : {
             login(event) {
                 // isso redireciona para a página que é para redirecionar.
-                this.user.login(this.email, this.password).catch( error =>
-                    alert(error)
-                )
+                this.user.login(this.email, this.password,"/resumo")
             },
             logout(event){
                 this.user.logout()
@@ -61,7 +59,7 @@
                 <button class="btn btn-primary col-4" @click.preventDefault="login">Logar</button>
             </div>
             <div class="mx-3">
-                <p>Não tem uma conta? <a href="/signup">crie uma agora mesmo.</a></p>
+                <p>Não tem uma conta? <RouterLink to="/signup">crie uma agora mesmo.</RouterLink></p>
             </div>
         </div>
     </main>

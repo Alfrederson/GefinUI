@@ -45,7 +45,7 @@ const routes = [
 // const logged = routes.filter( x => x.logged ).map( x => x.name )
 
 const router = createRouter({
-  history: createWebHistory('/GefinUI/'),
+  history: createWebHistory('/'),
   routes: routes
 })
 
