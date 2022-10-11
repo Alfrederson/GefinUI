@@ -1,8 +1,11 @@
 <script>
-    import { useUserStore } from '../stores/user'
-    import api from '../api'
     import util from '../util'
+
+    import { useUserStore } from '../stores/user'
+    import { useModalStore } from '../stores/modal'
+    
     import Spinner from "../components/Spinner.vue"
+    
     export default({
         props : ["pagina"],
 
@@ -21,10 +24,8 @@
 
             return{
                 util : util,
-                email : "",
-                password : "",
-                erro : "",
                 user : useUserStore(),
+                modal: useModalStore(),
                 titulo: tipo.titulo,
                 listFunc: tipo.func,
                 tipo    : tipo.tipo,
@@ -32,100 +33,68 @@
                 temDados: false,
                 dadosVazios : false,
                 criando: false,
-
-                novaData : undefined,
-                novaValor : undefined,
-                novaCategoria : undefined,
-                novaDescricao : undefined
-
+                detalhando: undefined
             }
         },
 
         methods : {
             // deveria ser uma função de utilidade?
             // alterna  a janelina de criar nova despesa/receita      
-            alternaCriacao(){
-                this.criando = ! this.criando
+            comecaCriacao(){
+                //this.criando = ! this.criando
+                this.modal.operacoes(this.tipo, "criar", dados =>{                   
+                    this.criar(dados)
+                })
             },
             // cancela a criação
-            cancelar(){
-                this.criando = false
+            detalhar(id){
+                this.detalhando = id
             },
             // cria a criação
-            async criar(){
-                if(!this.novaData)
+            // generalizar para edição também?
+            async criar(dados){                    
+                if(!dados.descricao){
+                    this.modal.erro("Preste atenção!","Faltou descrição. Vai ter que fazer tudo de novo.",this.comecaCriacao)
+                    
                     return
-                if(!this.novaDescricao)
+                }
+                console.log((parseFloat(dados.valor)<0.01))
+                if(!dados.valor || (parseFloat(dados.valor)<0.01)){
+                    console.log("ops")
+                    this.modal.erro("Preste atenção!","Faltou o valor. Vai ter que fazer tudo de novo.",this.comecaCriacao)
                     return
-                if(!this.novaValor)
-                    return
-                let data = this.novaData.replaceAll("-","")
+                }
+
+
+                let data = dados.data.replaceAll("-","")
                 this.user.criar(this.tipo,
                                 data,
-                                this.novaDescricao,
-                                this.novaValor,
-                                this.novaCategoria)
+                                dados.descricao,
+                                dados.valor,
+                                dados.categoria)
                 .then( r =>{
                     this.puxarDados()
-                    this.criando = false
+                })
+                .catch( e =>{
+                    this.modal.erro("Ops!",e)
                 })
             },
             async puxarDados(){
-                let json = await api[this.listFunc]()
-                this.dados = JSON.parse(json).sort( (a,b) => b.data - a.data )
-                this.temDados = true
-                this.dadosVazios = this.dados.length == 0
+                this.temDados = false
+                this.user.operacoes(this.tipo+"s").then( resultado =>{
+                    this.dados = JSON.parse(resultado).sort( (a,b) => b.data - a.data )
+                    this.temDados = true
+                    this.dadosVazios = this.dados.length == 0
+                })
             }            
         },
         async mounted(){
-            console.log(this.pagina)
             await this.user.prepare()
             this.puxarDados()
         }        
     })
 </script>
 <template>
-    <!-- botar isso em um componente.-->
-    <Transition name="fade">
-        <div v-if="this.criando" style="display:block; position:fixed; left:0px; top:0px; width:100vw; height:100vh; background-color:rgba(0,0,0,0.3)">
-        </div>
-    </Transition>
-    <Transition name="slide-fade">
-    <div v-if="this.criando" class="modal fade show" style="display:block">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        Registrar nova {{this.tipo}}
-                    </h5>
-                </div>
-                <div class="modal-body mx-2">
-                    <div class="mb-3">
-                        <label for="data" class="col-form-label">Data</label>
-                        <input type="date" class="form-control" v-model="novaData"/>
-                    </div>
-                    <div class="mb-3">
-                        <label for="descricao" class="col-form-label">Descrição</label>
-                        <input class="form-control" v-model="novaDescricao"/>
-                    </div>
-                    <div class="mb-3">
-                        <label for="valor" class="col-form-label">Valor</label>
-                        <input type="number" step="0.01" min="0" class="form-control" v-model="novaValor"/>
-                    </div>
-                    <div class="mb-3" v-if="this.tipo =='despesa'">
-                        <label for="categoria" class="col-form-label">Categoria</label>
-                        <input type="text" class="form-control" v-model="novaCategoria"/>
-                    </div>
-                </div>
-                <div class="modal-footer d-flex justify-content-center">
-                    <button type="button" class="btn btn-primary" @click="criar">Criar</button>
-                    <button type="button" class="btn btn-primary" @click="cancelar">Cancelar</button>
-                </div>
-            </div>
-        </div>
-    </div> 
-    </Transition>
-
     <div class="container">
         <div class="card-body">
             <p>Essas são todas as suas {{this.tipo}}s.</p>
@@ -136,7 +105,7 @@
                         Parece que não tem nenhuma {{this.tipo}} registrada ainda. Você pode tentar criar uma.
                     </div>
                     <div v-else style="overflow-x:auto">
-                        <table class="table table-md">
+                        <table class="table table-md table-hover">
                         <thead>
                             <!-- <td>id</td> -->
                             <tr>
@@ -147,7 +116,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="item in this.dados">
+                            <tr v-for="item in this.dados" @click="detalhar(item.id)">
                                 <!-- <td>{{item.id}}</td>-->
                                 <td>{{this.util.formataData(item.data)}}</td>
                                 <td>{{item.valor}}</td>
@@ -163,7 +132,7 @@
 
         </div>
         <div class="card-footer" v-if="this.temDados">
-            <button type="button" class="btn btn-primary" @click="alternaCriacao">Registrar uma nova {{this.tipo}}.</button>
+            <button type="button" class="btn btn-primary" @click="comecaCriacao">Registrar uma nova {{this.tipo}}.</button>
         </div>
 
 
