@@ -1,7 +1,9 @@
 <script setup>
     import { onMounted } from 'vue';
     import { useUserStore } from '../stores/user'
+    import { useModalStore } from '../stores/modal';
     const user = useUserStore()
+    const modal = useModalStore()
     onMounted(()=>{
         user.titulo = "Olá, pessoa que usa isso!"
     })

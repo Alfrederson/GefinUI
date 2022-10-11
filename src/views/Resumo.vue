@@ -10,38 +10,38 @@
             Spinner
         },
 
-        mounted(){
-            this.user.prepare().then( x =>{
-                this.carregar()
-            })
+        async mounted(){
             this.user.titulo = "Resumo"
+
+            await this.user.prepare()
+            this.carregar()
         },
         data(){
             return{
                 resumo : undefined,
                 user : useUserStore(),
-                coisas : "Isso é pra aparecer lá emcima.",
                 resumoInicio : undefined,
-                resumoFim    : undefined
+                resumoFim    : undefined,
+                temCategorias : false
             }
         },
         methods : {
-            carregar(){
+            async carregar(){
                 this.resumo = undefined
                 let agora = new Date()
                 let ano = agora.getFullYear().toString()
                 let mes = (agora.getMonth()+1).toString().padStart(2,"0")
 
-                api.resumo(ano,mes).then( r =>{
+                try{
+                    let r = await this.user.resumo(ano,mes)
                     this.resumo = JSON.parse(r)
-
                     this.resumoInicio = util.formataData(this.resumo.inicio)
                     this.resumoFim    = util.formataData(this.resumo.fim)
-                })
-            },
-            recarregar(){
-                this.carregar()
-        }
+                    this.temCategorias = Object.entries(this.resumo.categorias).length > 0
+                }catch(erro){
+                    console.log("Deu caquinha "+erro)
+                }
+            }
     }
         
     })
@@ -56,7 +56,7 @@
         <div class="card-body" >
             <p>Algum dia você poderá ver o resumo de cada mês.</p>
             <Transition name="fade">
-                <div class="container col-6">                
+                <div class="container col-12">                
                     <table class="table" v-if="this.resumo">
                         <tr>
                             <th scope="row">Receitas:</th>
@@ -72,30 +72,29 @@
                         </tr>
                     </table>
                 </div>
-            </Transition>
-            <div v-if="!this.resumo" style="display:flex">
-                <Spinner/>
-            </div>            
+            </Transition>         
         </div>
         
-        <div class="card-header">
-            Despesas por categoria:
+        <div v-if="this.resumo && (this.temCategorias)">
+            <div class="card-header">
+                Despesas por categoria:
+            </div>
+            <div class="card-body" >
+                <p>Fazer um grafiquinho com o chart.js?</p>
+                <Transition name="fade">
+                    <div class="container col-12">
+                        <table class="table" v-if="this.resumo">
+                            <tr v-for="valor, categoria in this.resumo.categorias">
+                                <th scope="row">{{categoria}}</th>
+                                <td>{{valor}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </Transition>          
+            </div>
         </div>
-        <div class="card-body" >
-            <p>Fazer um grafiquinho com o chart.js?</p>
-            <Transition name="fade">
-                <div class="container col-6">
-                    <table class="table" v-if="this.resumo">
-                        <tr v-for="valor, categoria in this.resumo.categorias">
-                            <th scope="row">{{categoria}}</th>
-                            <td>{{valor}}</td>
-                        </tr>
-                    </table>
-                </div>
-            </Transition>
-            <div v-if="!this.resumo" style="display:flex">
-                <Spinner/>
-            </div>              
-        </div>
+        <div v-if="!this.resumo" style="display:flex">
+            <Spinner/>
+        </div>            
     </div>
 </template>

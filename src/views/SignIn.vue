@@ -1,9 +1,11 @@
 <script>
     import { useUserStore } from '../stores/user'
+    import { useModalStore } from "../stores/modal"
 
     export default{
         data(){
             return{
+                modal : useModalStore(),
                 email : "",
                 password : "",
                 erro : "",
@@ -14,18 +16,18 @@
             this.user.titulo="Entrar"
         },
         methods : {
-            login(event) {
+            async login(event) {
                 // isso redireciona para a página que é para redirecionar.
-                this.user.login(this.email, this.password,"/resumo")
-            },
-            logout(event){
-                this.user.logout()
+                this.user.login(this.email, this.password)
+                .then ( msg =>{
+                    this.$router.push({path: "/resumo"})
+                })
+                .catch( msg =>{
+                    this.modal.erro("Erro fazendo login, chefe.",msg)
+                })
             }
         }
     }
-
-
-
 </script>
 <template>
     <main>

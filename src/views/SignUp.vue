@@ -1,5 +1,7 @@
 <script>
     import { useUserStore } from '../stores/user'
+    import { useModalStore } from "../stores/modal"
+
     import router from '../router'
 
 
@@ -10,7 +12,8 @@
                 pass1 : "",
                 pass2 : "",
                 name  : "",
-                user : useUserStore()
+                user : useUserStore(),
+                modal: useModalStore()
             }
         },  
         mounted(){
@@ -18,14 +21,40 @@
         },
         methods : {
             enviar(){
+
+                // pré-validação
+                if(!this.name){
+                    this.modal.erro("Preste atenção!","Preciso saber o seu nome.")
+                    return
+                }
+                if(!this.email){
+                    this.modal.erro("Cadê seu e-mail?","Você precisa me dizer seu e-mail.")
+                    return
+                }
+                if(!this.pass1){
+                    this.modal.erro("Preste atenção","Você deve fornecer uma senha.")
+                    return
+                }
+                if(!this.pass2){
+                    this.modal.erro("Preste atenção","Você precisa escrever a sua senha de novo.")
+                    return
+                }
+
+                if(this.pass1 !== this.pass2){
+                    this.modal.erro("Preste atenção.","Você deve escrever a sua senha duas vezes do mesmo jeito.")
+                    return
+                }
+
+
                 this.user.signup(this.name, this.email, this.pass1)
                 .then( resposta =>{
+                    alert("Parece que deu certo. Faça login.")
                     router.replace({ path : "/signin"})
                 })
                 .catch( erro =>{
                     // se o servidor não estiver rodando, 
                     // vai dar failed to fetch.
-                    alert("Condição de erro. Avisar\n" + erro)
+                    this.modal.erro("Não consegui registrar sua conta, chefe.",erro)
                 })
             }
         }

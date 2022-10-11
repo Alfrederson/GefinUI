@@ -26,7 +26,7 @@
         width: 100%;
         margin-top: -50mm;
         height: 50mm;
-        z-index: -1;
+        z-index: -5;
     }
     .logo{
         color:lime;
@@ -38,7 +38,7 @@
         margin-right:auto;
         width: fit-content;
         margin-top:4em;
-        animation: blink 2s infinite;
+        animation: blink 1s infinite cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     @keyframes blink{
         0%{
