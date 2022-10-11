@@ -1,5 +1,5 @@
-//const API = "http://127.0.0.1:5000"
-const API = "https://challenge-backend-9254d.web.app"
+const API = "http://127.0.0.1:5000/api"
+//const API = "/api"
 
 const status = {
     logged : false,
