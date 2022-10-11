@@ -1,5 +1,19 @@
 # GefinUI
 
+Frontend em Vue3 para o backend feito para o challenge de backend do Alura.
+Versão live aqui:
+
+https://challenge-backend-9254d.web.app/
+
+Faltam algumas coisas, mas creio que o basico está aí.
+O Frontend permite:
+
+* Criar uma conta.
+* Fazer login e logout.
+* Criar e listar despesas e receitas.
+
+
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
