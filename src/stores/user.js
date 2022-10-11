@@ -28,7 +28,7 @@ export const useUserStore = defineStore({
     _refresher(){
       api.post("/user/refresh").then( resultado =>{
         console.log(`${resultado}`)
-        setTimeout( this._refresher, 6000)
+        setTimeout( this._refresher, 10*60*1000)
       }).catch( erro =>{
         console.log("Aconteceu um erro!")
       })
